@@ -61,10 +61,7 @@ const STORAGE_KEY = 'sea-love-songs-v1';
 // ลิงก์เพลงเริ่มต้น (สามารถใส่ได้ทั้ง YouTube URL และไฟล์ mp3)
 const initialSongs: Song[] = [
   { id: 1, title: "จงเรียกเธอว่านางพญา", src: "https://youtu.be/KczJJtR--d4", lyrics: [] },
-  { id: 2, title: "โปรดส่งใครมารักฉันที - อินสติงค์", src: "https://youtu.be/EDF7riZLhNA?si=ZHEJFNrI_os85nD3", lyrics: [] },
-  { id: 3, title: "โต๊ะริม - NONT TANONT", src: "https://youtu.be/XqQMisU5En8?si=TgbaW7y7w2_ZbBjW", lyrics: [] },
-  { id: 4, title: "กลิ่นดอกไม้ - Newery", src: "https://youtu.be/71KuVORecY8?si=_gJh1I9J3JB7pQE2", lyrics: [] },
-  { id: 5, title: "ทรายกับทะเล", src: "https://youtu.be/dMpBjCNZE0c?si=nO6raMwVqka2_TrX", lyrics: [] },
+  
 ];
 
 function isSongList(value: unknown): value is Song[] {
