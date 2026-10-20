@@ -503,7 +503,7 @@ export default function MusicPlayer() {
               {activeSong.title}
             </span>
             <span className="text-[10px] text-[#b3b3b3] block truncate">
-              {isLoading ? "กำลังโหลดเพลง..." : isPlaying ? "กำลังเปิดให้ฟังนะ 🩵" : "กดปุ่มเล่นเพื่อฟังเพลง"}
+              {isLoading ? "กำลังโหลดเพลง..." : isPlaying ? "กำลังเปิดให้ฟังนะ 🎶🎧" : "กดปุ่มเล่นเพื่อฟังเพลง"}
             </span>
           </div>
         </div>
