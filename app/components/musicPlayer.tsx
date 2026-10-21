@@ -17,12 +17,14 @@ import {
   Pencil
 } from 'lucide-react';
 
-interface Song {
+export interface MusicPlayerSong {
   id: number;
   title: string;
   src: string;
   lyrics: string[];
 }
+
+type Song = MusicPlayerSong;
 
 interface YouTubePlayer {
   cueVideoById: (videoId: string) => void;
@@ -96,8 +98,11 @@ function extractYouTubeId(url: string): string | null {
   return null;
 }
 
-export default function MusicPlayer() {
-  const [songs, setSongs] = useState<Song[]>(initialSongs);
+export default function MusicPlayer({ sharedSongs }: { sharedSongs?: MusicPlayerSong[] }) {
+  const isSharedPlaylist = Boolean(sharedSongs?.length);
+  const [songs, setSongs] = useState<Song[]>(() =>
+    sharedSongs?.length ? sharedSongs : initialSongs
+  );
   const [currentSong, setCurrentSong] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -115,7 +120,7 @@ export default function MusicPlayer() {
   const [showLyricsEditor, setShowLyricsEditor] = useState(false);
   const [lyricsDraft, setLyricsDraft] = useState("");
   const [randomLyric, setRandomLyric] = useState("");
-  const [storageReady, setStorageReady] = useState(false);
+  const [storageReady, setStorageReady] = useState(isSharedPlaylist);
   const [storageError, setStorageError] = useState("");
 
   const playerRef = useRef<YouTubePlayer | null>(null);
@@ -143,6 +148,7 @@ export default function MusicPlayer() {
   };
 
   useEffect(() => {
+    if (isSharedPlaylist) return;
     let isMounted = true;
     let loadedSongs = initialSongs;
     let loadingError = "";
@@ -174,7 +180,7 @@ export default function MusicPlayer() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [isSharedPlaylist]);
 
   // โหลด YouTube IFrame API
   useEffect(() => {
@@ -509,38 +515,43 @@ export default function MusicPlayer() {
         </div>
 
         {/* ปุ่มเพิ่มลิงก์ YouTube ของเราเอง */}
-        <button
-          onClick={() => setShowAddModal(!showAddModal)}
-          disabled={!storageReady}
-          className="text-[#1ed760] hover:text-[#1fdf64] bg-[#242424] hover:bg-[#333333] p-1.5 sm:p-2 rounded-full border border-[#333333] shadow-2xs transition shrink-0 active:scale-95"
-          title="เพิ่มเพลงจาก YouTube"
-          type="button"
-        >
-          <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-        </button>
-        <button
-          onClick={() => removeSong(activeSong.id)}
-          disabled={!storageReady || songs.length <= 1}
-          className="text-red-400 hover:text-red-300 bg-[#242424] hover:bg-[#333333] p-1.5 sm:p-2 rounded-full border border-[#333333] shadow-2xs transition shrink-0 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
-          title="ลบเพลงนี้"
-          aria-label={`ลบเพลง ${activeSong.title}`}
-          type="button"
-        >
-          <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-        </button>
+        {!isSharedPlaylist && (
+          <>
+            <button
+              onClick={() => setShowAddModal(!showAddModal)}
+              disabled={!storageReady}
+              className="text-[#1ed760] hover:text-[#1fdf64] bg-[#242424] hover:bg-[#333333] p-1.5 sm:p-2 rounded-full border border-[#333333] shadow-2xs transition shrink-0 active:scale-95"
+              title="เพิ่มเพลงจาก YouTube"
+              type="button"
+            >
+              <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            </button>
+            <button
+              onClick={() => removeSong(activeSong.id)}
+              disabled={!storageReady || songs.length <= 1}
+              className="text-red-400 hover:text-red-300 bg-[#242424] hover:bg-[#333333] p-1.5 sm:p-2 rounded-full border border-[#333333] shadow-2xs transition shrink-0 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+              title="ลบเพลงนี้"
+              aria-label={`ลบเพลง ${activeSong.title}`}
+              type="button"
+            >
+              <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            </button>
+          </>
+        )}
       </div>
 
-      {storageError && (
+      {!isSharedPlaylist && storageError && (
         <p role="alert" className="mb-3 text-left text-xs text-red-700">{storageError}</p>
       )}
-      {!storageReady && !storageError && (
+      {!isSharedPlaylist && !storageReady && !storageError && (
         <p className="mb-3 text-left text-xs text-[#b3b3b3]">กำลังโหลดเพลงที่บันทึกไว้...</p>
       )}
-      {storageReady && !storageError && (
+      {!isSharedPlaylist && storageReady && !storageError && (
         <p className="mb-3 text-left text-xs text-[#b3b3b3]">บันทึกเพลงและข้อความไว้ในเบราว์เซอร์นี้แล้ว</p>
       )}
 
-      <div className="mb-3 rounded-2xl border border-[#333333] bg-[#242424] p-3">
+      {!isSharedPlaylist && (
+        <div className="mb-3 rounded-2xl border border-[#333333] bg-[#242424] p-3">
         <div className="min-h-12 flex items-center justify-center text-sm text-white">
           {randomLyric || (
             <span className="text-xs text-[#b3b3b3]">
@@ -569,9 +580,10 @@ export default function MusicPlayer() {
             {showLyricsEditor ? "ปิด" : "แก้ข้อความ"}
           </button>
         </div>
-      </div>
+        </div>
+      )}
 
-      {showLyricsEditor && (
+      {!isSharedPlaylist && showLyricsEditor && (
         <div className="mb-3 space-y-2 text-left">
           <label className="block text-xs text-[#b3b3b3]" htmlFor="edit-song-lyrics">
             เนื้อเพลงหรือข้อความของเพลงนี้ (หนึ่งท่อนต่อบรรทัด)
